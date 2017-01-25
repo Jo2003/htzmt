@@ -36,13 +36,22 @@ string calcHash(string startNumber, string time)
 
 ## URL
 
-Die Url an die die Daten gesendet werden sollen, muss konfigurierbar sein. 
+Die Url an die die Daten gesendet werden sollen, muss konfigurierbar sein. An diese URL muss dann der generierte Query-String angehängt werden. Der angehängte Query-String beinhaltet __nicht__ das Bindezeichen zur URL (also das erste __?__ oder __&__ Zeichen)!
 
 ## Beispiel
 
-Folgendes Beispiel stellt die komplette URL mit Daten dar, die am 16.01.2017 valid wäre:
+Folgendes Beispiel stellt die konfigurierte URL dar:
 
-    http://logger.htzm.de/insert_time.php?startNum=123&time=0:01:56.123&hash=c8ffe9a587b126f152ed3d89a146b445
+    http://logger.htzm.de/insert_time.php?compid=123&
+
+Der generierte Query-String sähe so aus:
+
+    startNum=123&time=0:01:56.123&hash=c8ffe9a587b126f152ed3d89a146b445
+
+Die komplette URL somit so:
+
+    http://logger.htzm.de/insert_time.php?compid=xyz&startNum=123&time=0:01:56.
+    123&hash=c8ffe9a587b126f152ed3d89a146b445
 
 ## Gegenprobe auf dem Server
 
