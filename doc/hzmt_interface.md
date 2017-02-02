@@ -69,7 +69,7 @@ function checkHash()
     $numb = $_GET['startNum'];
     $hash = $_GET['hash'];
 
-    return (md5($numb + md5($time + md5($date))) === $hash);
+    return (md5($numb . md5($time . md5($date))) === $hash);
 }
 ```
 
