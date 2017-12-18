@@ -64,60 +64,65 @@ else if ($action == "start_list")
         // check for error ...
         if ($_FILES['start_list_file']['error'] == UPLOAD_ERR_OK)
         {
-            // check for text file ...
-            if (strpos($_FILES['start_list_file']['type'], "text") !== false)
+            // load file into array
+            if ($csv_arr = file($_FILES['start_list_file']['tmp_name']))
             {
-                // load file into array
-                if ($csv_arr = file($_FILES['start_list_file']['tmp_name']))
+                // start SQL query
+                $sql     = "REPLACE INTO starterliste VALUES ";
+                $success = false;
+
+                for ($i = 1; $i < count($csv_arr); $i++)
                 {
-                    // start SQL query
-                    $sql     = "REPLACE INTO starterliste VALUES ";
-                    $success = false;
-
-                    for ($i = 1; $i < count($csv_arr); $i++)
+                    if ($arr = preg_split("/,/", utf8_encode($csv_arr[$i])))
                     {
-                        if ($arr = preg_split("/,/", utf8_encode($csv_arr[$i])))
+                        if (count($arr) == 12)
                         {
-                            if (count($arr) == 12)
+                            $success = true;
+
+                            if ($i > 1)
                             {
-                                $success = true;
-
-                                if ($i > 1)
-                                {
-                                    $sql .= ", ";
-                                }
-
-                                /**
-                                 * 0  -> Name
-                                 * 1  -> Vorname
-                                 * 2  -> Verein
-                                 * 3  -> Verband*
-                                 * 4  -> StNr
-                                 * 5  -> Klasse
-                                 * 6  -> Strecke*
-                                 * 7  -> Startzeit*
-                                 * 8  -> Jahrgang*
-                                 * 9  -> Geschlecht*
-                                 * 10 -> Nation*
-                                 * *) -> not used
-                                 */
-                                $sql .= "('".$arr[0].", ".$arr[1]."', '".$arr[2]."', '".$arr[5]."', ".$arr[4].", ".$evt_id.")";
+                                $sql .= ", ";
                             }
-                        }
-                    }
 
-                    echo "<!-- ".$sql." -->";
-
-                    if ($success)
-                    {
-                        if ($db->query($sql) === true)
-                        {
-                            $note = $note = "<span class='text-success'>Starterliste erfolgreich importiert!</span>";
+                            /**
+                             * 0  -> Name
+                             * 1  -> Vorname
+                             * 2  -> Verein
+                             * 3  -> Verband*
+                             * 4  -> StNr
+                             * 5  -> Klasse
+                             * 6  -> Strecke*
+                             * 7  -> Startzeit*
+                             * 8  -> Jahrgang*
+                             * 9  -> Geschlecht*
+                             * 10 -> Nation*
+                             * *) -> not used
+                             */
+                            $sql .= "('".$arr[0].", ".$arr[1]."', '".$arr[2]."', '".$arr[5]."', ".$arr[4].", ".$evt_id.")";
                         }
                     }
                 }
+
+                // echo "<!-- ".$sql." -->";
+
+                if ($success)
+                {
+                    if ($db->query($sql) === true)
+                    {
+                        $note = "<span class='text-success'>Starterliste erfolgreich importiert!</span>";
+                    }
+                }
             }
+            else
+            {
+                $note = "<span class='text-success'>Kann Datei nicht öffnen!</span>";
+            }
+
             unlink($_FILES['start_list_file']['tmp_name']);
+        }
+        else
+        {
+            $note = "<span class='text-success'>Upload Error!</span>";
         }
     }
 }
@@ -147,25 +152,31 @@ $evt_array2 = $evt_array;
 $evt_array2['cssid'] = 'event2';
 
 $core = new Dwoo\Core();
-$core->setTemplateDir("../templates");
+try
+{
+    $core->setTemplateDir("../templates");
+    $tpl  = new Dwoo\Template\File('select.tpl');
+    $tpl->setIncludePath('../templates');
 
-$tpl  = new Dwoo\Template\File('select.tpl');
-$tpl->setIncludePath('../templates');
+    $pln_data = new Dwoo\Data();
+    $pln_data->assign('date', "");
+    $pln_data->assign('wo', "");
+    $pln_data->assign('comp', "");
+    $pln_data->assign('self', $_SERVER['PHP_SELF']);
+    $pln_data->assign('evt_sel', $core->get($tpl, $evt_array));
+    $pln_data->assign('evt2_sel', $core->get($tpl, $evt_array2));
+    $content  = $core->get('planung.tpl', $pln_data);
 
-$pln_data = new Dwoo\Data();
-$pln_data->assign('date', "");
-$pln_data->assign('wo', "");
-$pln_data->assign('comp', "");
-$pln_data->assign('self', $_SERVER['PHP_SELF']);
-$pln_data->assign('evt_sel', $core->get($tpl, $evt_array));
-$pln_data->assign('evt2_sel', $core->get($tpl, $evt_array2));
-$content  = $core->get('planung.tpl', $pln_data);
+    $data = new Dwoo\Data();
+    $data->assign('title', "Wettkampfplanung");
+    $data->assign('content', $content);
+    $data->assign('note', $note);
+    $data->assign('script', "");
 
-$data = new Dwoo\Data();
-$data->assign('title', "Wettkampfplanung");
-$data->assign('content', $content);
-$data->assign('note', $note);
-$data->assign('script', "");
-
-echo $core->get('site.tpl', $data);
+    echo $core->get('site.tpl', $data);
+}
+catch (\Dwoo\Exception $e)
+{
+    echo "Error in ". $e->getFile().":".$e->getLine().": ".$e->getMessage();
+}
 ?>

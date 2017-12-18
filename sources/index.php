@@ -197,24 +197,30 @@ for ($i = 0; $i < count($data_array); $i++)
 //------------------------------------------------------------------------------
 
 $core = new Dwoo\Core();
-$core->setTemplateDir("./templates");
-$tpl  = new Dwoo\Template\File('select.tpl');
-$tpl->setIncludePath('./templates');
+try
+{
+    $core->setTemplateDir("./templates");
+    $tpl  = new Dwoo\Template\File('select.tpl');
+    $tpl->setIncludePath('./templates');
 
-$data = new Dwoo\Data();
-$data->assign('evt_sel', $core->get($tpl, $evt_array));
-$data->assign('comp_sel', $core->get($tpl, $wk_array));
-$data->assign('ak_sel', $core->get($tpl, $ak_array));
+    $data = new Dwoo\Data();
+    $data->assign('evt_sel', $core->get($tpl, $evt_array));
+    $data->assign('comp_sel', $core->get($tpl, $wk_array));
+    $data->assign('ak_sel', $core->get($tpl, $ak_array));
 
-$glob_data = new Dwoo\Data();
-$glob_data->assign('note', $note);
-$glob_data->assign('script', $jscript);
-$glob_data->assign('title', 'Ergebnisse');
+    $glob_data = new Dwoo\Data();
+    $glob_data->assign('note', $note);
+    $glob_data->assign('script', $jscript);
+    $glob_data->assign('title', 'Ergebnisse');
 
-$content  = $core->get('result_sort.tpl', $data);
-$content .= $core->get('restab.tpl', $tab_array);
+    $content  = $core->get('result_sort.tpl', $data);
+    $content .= $core->get('restab.tpl', $tab_array);
 
-$glob_data->assign('content', $content);
-echo $core->get('site.tpl', $glob_data);
-
+    $glob_data->assign('content', $content);
+    echo $core->get('site.tpl', $glob_data);
+}
+catch (\Dwoo\Exception $e)
+{
+    echo "Error in ". $e->getFile().":".$e->getLine().": ".$e->getMessage();
+}
 ?>

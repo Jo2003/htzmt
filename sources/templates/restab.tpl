@@ -9,6 +9,7 @@
 <th>Zeit</th>
 </tr>
 </thead>
+<tbody>
 {loop $res_rows}
 <tr>
 <td{$tdclass}>{$rank}</td>
@@ -21,6 +22,7 @@
 <td{$tdclass}>{$time}</td>
 </tr>
 {/loop}
+</tbody>
 </table>
 </div>
 </div>
