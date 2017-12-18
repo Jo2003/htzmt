@@ -31,6 +31,10 @@ function i_isset($key)
     {
         $ret = $_GET[$key];
     }
+    else if (array_key_exists($key, $_COOKIE))
+    {
+        $ret = $_COOKIE[$key];
+    }
 
     if ($ret == "")
     {

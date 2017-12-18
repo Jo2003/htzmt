@@ -14,7 +14,7 @@
 <td{$tdclass}>{$rank}</td>
 <td{$tdclass}>{$startno}</td>
 <td{$tdclass}>
-    <span data-html="true" class='text-primary' data-toggle="tooltip"
+    <span {$scrollto}data-html="true" class='text-primary' data-toggle="tooltip"
         title="<b class='text-primary'>Club:</b> {$club}<br /><b class='text-primary'>AK:</b> {$ak}">{$startname}
     </span>
 </td>

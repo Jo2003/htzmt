@@ -1,107 +1,7 @@
 <?php
 require_once('common_inc.php');
-
-/*
-$jscript = '
-$(function () {
-  $(\'[data-toggle="tooltip"]\').tooltip()
-})
-
-function selChanged($name, $val)
-{
-    location.href = URL_add_parameter(location.href, $name, $val);
-}
-
-function URL_add_parameter(url, param, value)
-{
-    var hash       = {};
-    var parser     = document.createElement("a");
-
-    parser.href    = url;
-
-    var parameters = parser.search.split(/\?|&/);
-
-    for(var i=0; i < parameters.length; i++) {
-        if(!parameters[i])
-            continue;
-
-        var ary      = parameters[i].split("=");
-        hash[ary[0]] = ary[1];
-    }
-
-    hash[param] = value;
-
-    var list = [];
-    Object.keys(hash).forEach(function (key) {
-        list.push(key + "=" + hash[key]);
-    });
-
-    parser.search = "?" + list.join("&");
-    return parser.href;
-}
-
-// --------------------------------------
-// reload on stamp change ...
-// --------------------------------------
-var lastStamp = "";
-var loops = 0;
-
-setInterval
-(
-    function()
-    {
-        var ajax = new XMLHttpRequest();
-        ajax.onreadystatechange = function()
-        {
-            if (ajax.readyState == 4)
-            {
-                var reload = 0;
-                if (ajax.responseText != lastStamp)
-                {
-                    if (lastStamp != "")
-                    {
-                        reload = lastStamp;
-                    }
-                    lastStamp = ajax.responseText;
-                }
-
-                if (reload != 0)
-                {
-                    loops = 0;
-                    location.href = URL_add_parameter(location.href, "last_insert_id", reload);
-                }
-                else
-                {
-                    loops++;
-
-                    // force reload every minute ...
-                    if (!(loops % 30))
-                    {
-                        location.href = URL_add_parameter(location.href, "last_insert_id", "");
-                    }
-                }
-            }
-        };
-
-        // Use POST to avoid caching
-        ajax.open("POST", "http://htzmt.coujo.de/.logger/stamp.txt", true);
-        ajax.send();
-    },
-2000);
-
-// scroll position after reload ...
-$(window).scroll(function() {
-  sessionStorage.scrollTop = $(this).scrollTop();
-});
-
-$(document).ready(function() {
-  if (sessionStorage.scrollTop != "undefined") {
-    $(window).scrollTop(sessionStorage.scrollTop);
-  }
-});
-';
-*/
-$jscript = "<script src='http://htzmt.coujo.de/templates/htzmt.js'></script>";
+$jscript = "<script src='http://htzmt.coujo.de/templates/htzmt.js'
+  integrity='sha384-HXEXcRiz3tebcXCb0CrgKevsLDYl+C/R8dMK5gZb0eHqERRGthX7m2lL2BY7RPhu' crossorigin='anonymous'></script>";
 
 
 // -----------------------------------------------------------------------------
@@ -246,8 +146,10 @@ if ($statement = $db->prepare($sql))
     usort($data_array, 'cmpResData');
 }
 
-$lastTime = "";
-$rank     = 0;
+$lastTime       = "";
+$rank           = 0;
+$scrollto_shown = false;
+$scrollto       = "";
 
 $tab_array = array('res_rows' =>  array());
 
@@ -267,6 +169,19 @@ for ($i = 0; $i < count($data_array); $i++)
         $mark = true;
     }
 
+    if ($mark === true)
+    {
+        if ($scrollto_shown === false)
+        {
+            $scrollto       = "id='scrollto' ";
+            $scrollto_shown = true;
+        }
+    }
+    else
+    {
+        $scrollto       = "";
+    }
+
     $tab_array['res_rows'][] = array(
         'rank'      => $rank,
         'startno'   => $data_array[$i]['id'],
@@ -274,7 +189,8 @@ for ($i = 0; $i < count($data_array); $i++)
         'club'      => $data_array[$i]['team'],
         'ak'        => $data_array[$i]['ak'],
         'time'      => $data_array[$i]['ltime'],
-        'tdclass'   => ($mark ? " style='background-color: #ffe2e0'" : "")
+        'tdclass'   => ($mark ? " style='background-color: #ffe2e0'" : ""),
+        'scrollto'  => $scrollto
     );
 }
 

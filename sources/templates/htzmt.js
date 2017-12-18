@@ -1,10 +1,39 @@
 $(function () {$('[data-toggle="tooltip"]').tooltip();});
 
+//------------------------------------------------------------------------------
+//! check if element is visible on screen
+//!
+//! @param      {object}  elm     element
+//! @return     {bool}  true -> is visible, false if not
+//------------------------------------------------------------------------------
+function checkVisible(elm)
+{
+    var rect = elm.getBoundingClientRect();
+    var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+
+    // make sure the whole object is visible!
+    return ((rect.top > 0) && (rect.bottom < viewHeight));
+}
+
+//------------------------------------------------------------------------------
+//! selection on select element changed
+//!
+//! @param      {string}  $name   select name
+//! @param      {string}  $val    select value
+//------------------------------------------------------------------------------
 function selChanged($name, $val)
 {
     location.href = URL_add_parameter(location.href, $name, $val);
 }
 
+//------------------------------------------------------------------------------
+//! add a parameter to the url
+//!
+//! @param      {string}  url     The url
+//! @param      {string}  param   The parameter
+//! @param      {string}  value   The value
+//! @return     {string}  new url string
+//------------------------------------------------------------------------------
 function URL_add_parameter(url, param, value)
 {
     var hash       = {};
@@ -61,16 +90,23 @@ setInterval(
                 if (reload != 0)
                 {
                     loops = 0;
-                    location.href = URL_add_parameter(location.href, "last_insert_id", reload);
+                    saveScrollPos();
+                    Cookies.set('last_insert_id', reload);
+                    location.reload(true);
                 }
                 else
                 {
                     loops++;
 
                     // force reload every minute ...
-                    if (!(loops % 30))
+                    if (!(loops % 5))
                     {
-                        location.href = URL_add_parameter(location.href, "last_insert_id", "");
+                        if (document.getElementById('scrollto') !== null)
+                        {
+                            saveScrollPos();
+                            Cookies.remove('last_insert_id');
+                            location.reload(true);
+                        }
                     }
                 }
             }
@@ -82,22 +118,43 @@ setInterval(
     },
 2000);
 
-// --------------------------------------
-// scroll position after reload ...
-// --------------------------------------
+//------------------------------------------------------------------------------
+//! Saves a scroll position.
+//------------------------------------------------------------------------------
 function saveScrollPos()
 {
-    sessionStorage.scrollTop = $(this).scrollTop();
+    Cookies.set('last-scroll-top', $(window).scrollTop());
 }
 
+//------------------------------------------------------------------------------
+//! scroll to saved scroll position
+//------------------------------------------------------------------------------
 function scrollToSaved()
 {
-    if (sessionStorage.scrollTop != "undefined")
+    var lastScrollTop = Cookies.get('last-scroll-top');
+    if (lastScrollTop)
     {
-        $(window).scrollTop(sessionStorage.scrollTop);
+        $(window).scrollTop(lastScrollTop);
+        Cookies.remove('last-scroll-top');
     }
 }
 
-$(window).scroll(saveScrollPos);
-$(document).ready(scrollToSaved);
+//------------------------------------------------------------------------------
+//! scroll to new inserted table item
+//------------------------------------------------------------------------------
+function scrollToNew()
+{
+    scrollToSaved();
 
+    var scrollobj = document.getElementById('scrollto');
+    if (scrollobj !== null)
+    {
+        if (!checkVisible (scrollobj))
+        {
+            $("html, body").delay(500).animate({scrollTop: $('#scrollto').offset().top }, 1000);
+        }
+    }
+}
+
+$(document).ready(scrollToNew);
+$(document).scroll(saveScrollPos);
