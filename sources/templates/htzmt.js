@@ -23,7 +23,7 @@ function checkVisible(elm)
 //------------------------------------------------------------------------------
 function selChanged($name, $val)
 {
-    location.href = URL_add_parameter(location.href, $name, $val);
+    location.href = addUrlparameter(location.href, $name, $val);
 }
 
 //------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ function selChanged($name, $val)
 //! @param      {string}  value   The value
 //! @return     {string}  new url string
 //------------------------------------------------------------------------------
-function URL_add_parameter(url, param, value)
+function addUrlparameter(url, param, value)
 {
     var hash       = {};
     var parser     = document.createElement("a");
@@ -75,19 +75,19 @@ setInterval(
         ajax.onreadystatechange =
         function()
         {
-            if (ajax.readyState == 4)
+            if (ajax.readyState === 4)
             {
                 var reload = 0;
-                if (ajax.responseText != lastStamp)
+                if (ajax.responseText !== lastStamp)
                 {
-                    if (lastStamp != "")
+                    if (lastStamp !== "")
                     {
-                        reload = lastStamp;
+                        reload = Number(lastStamp);
                     }
                     lastStamp = ajax.responseText;
                 }
 
-                if (reload != 0)
+                if (reload !== 0)
                 {
                     loops = 0;
                     saveScrollPos();

@@ -15,11 +15,11 @@ require_once(__DIR__.'/dwoo-1.3.6/vendor/autoload.php');
 //! extract value from array
 //!
 //! @param      string  $key    key to extract
-//! @param      array   $&      array to extract from
+//! @param bool $usecookie      use cookie as source
 //!
 //! @return     mixed  extract value or false
 //------------------------------------------------------------------------------
-function i_isset($key)
+function i_isset($key, $usecookie = true)
 {
     $ret = false;
 
@@ -31,7 +31,7 @@ function i_isset($key)
     {
         $ret = $_GET[$key];
     }
-    else if (array_key_exists($key, $_COOKIE))
+    else if (array_key_exists($key, $_COOKIE) && ($usecookie === true))
     {
         $ret = $_COOKIE[$key];
     }

@@ -57,9 +57,9 @@ else if ($action == "new_comp")
 }
 else if ($action == "start_list")
 {
-    $note   = "<span class='text-danger'>Konnte Starterliste nicht anlegen!</span>";
-    $evt_id = i_isset('event');
-    if (!empty($_FILES) && array_key_exists('start_list_file', $_FILES) && ($evt_id !== false))
+    $note    = "<span class='text-danger'>Konnte Starterliste nicht anlegen!</span>";
+    $comp_id = i_isset('comp');
+    if (!empty($_FILES) && array_key_exists('start_list_file', $_FILES) && ($comp_id !== false))
     {
         // check for error ...
         if ($_FILES['start_list_file']['error'] == UPLOAD_ERR_OK)
@@ -98,7 +98,7 @@ else if ($action == "start_list")
                              * 10 -> Nation*
                              * *) -> not used
                              */
-                            $sql .= "('".$arr[0].", ".$arr[1]."', '".$arr[2]."', '".$arr[5]."', ".$arr[4].", ".$evt_id.")";
+                            $sql .= "('".$arr[0].", ".$arr[1]."', '".$arr[2]."', '".$arr[5]."', ".$arr[4].", ".$comp_id.")";
                         }
                     }
                 }
@@ -130,8 +130,8 @@ else if ($action == "start_list")
 // -----------------------------------------------------------------------------
 //! \brief create selects
 // -----------------------------------------------------------------------------
-$event = 0;
-$sql = "SELECT id, DATE_FORMAT(datum, '%d.%m.%Y') as date, wo FROM event order by id desc";
+$event = i_isset("sel_event");
+$sql   = "SELECT id, DATE_FORMAT(datum, '%d.%m.%Y') as date, wo FROM event order by id desc";
 $statement = $db->prepare($sql);
 $statement->execute();
 $result = $statement->get_result();
@@ -145,11 +145,40 @@ $evt_array = array(
 
 while ($row = $result->fetch_object())
 {
-    $evt_array['option_list'][] = array('id' => $row->id, 'value' => $row->date.", ".$row->wo, 'selected' => '');
+    if ($event === false)
+    {
+        $event = $row->id;
+    }
+
+    $selected = '';
+    if ($row->id == $event)
+    {
+        $selected = "selected='selected'";
+    }
+    $evt_array['option_list'][] = array('id' => $row->id, 'value' => $row->date.", ".$row->wo, 'selected' => $selected);
 }
 
 $evt_array2 = $evt_array;
-$evt_array2['cssid'] = 'event2';
+$evt_array2['cssid']    = 'event2';
+$evt_array2['onchange'] = 'selectCookieReload("sel_event", this.value);';
+
+$sql   = "SELECT * FROM wettkampf where evtid=? order by id desc";
+$statement = $db->prepare($sql);
+$statement->bind_param("i", $event);
+$statement->execute();
+$result = $statement->get_result();
+
+$comp_sel = array(
+    'name'        => 'comp',
+    'cssid'       => 'comp2',
+    'onchange'    => '',
+    'option_list' => array()
+);
+
+while ($row = $result->fetch_object())
+{
+    $comp_sel['option_list'][] = array('id' => $row->id, 'value' => $row->name.' (#'.$row->id.')', 'selected' => '');
+}
 
 $core = new Dwoo\Core();
 try
@@ -165,13 +194,14 @@ try
     $pln_data->assign('self', $_SERVER['PHP_SELF']);
     $pln_data->assign('evt_sel', $core->get($tpl, $evt_array));
     $pln_data->assign('evt2_sel', $core->get($tpl, $evt_array2));
+    $pln_data->assign('comp_sel', $core->get($tpl, $comp_sel));
     $content  = $core->get('planung.tpl', $pln_data);
 
     $data = new Dwoo\Data();
     $data->assign('title', "Wettkampfplanung");
     $data->assign('content', $content);
     $data->assign('note', $note);
-    $data->assign('script', "");
+    $data->assign('script', "<script src='http://htzmt.coujo.de/templates/htzmt_adm.js'></script>");
 
     echo $core->get('site.tpl', $data);
 }

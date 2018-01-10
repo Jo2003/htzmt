@@ -66,6 +66,14 @@
 </div>
 <div class="form-group row">
 <div class='col-sm-4'>
+<label for="comp2" class="col-form-label">Wettkampf:</label>
+</div>
+<div class='col-sm-8'>
+{$comp_sel}
+</div>
+</div>
+<div class="form-group row">
+<div class='col-sm-4'>
 <label for="file" class="col-form-label">Starterliste:</label>
 </div>
 <div class='col-sm-8'>

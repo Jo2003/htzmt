@@ -1,7 +1,6 @@
 <?php
 require_once('common_inc.php');
-$jscript = "<script src='http://htzmt.coujo.de/templates/htzmt.js'
-  integrity='sha384-HXEXcRiz3tebcXCb0CrgKevsLDYl+C/R8dMK5gZb0eHqERRGthX7m2lL2BY7RPhu' crossorigin='anonymous'></script>";
+$jscript = "<script src='http://htzmt.coujo.de/templates/htzmt.js'></script>";
 
 
 // -----------------------------------------------------------------------------
@@ -78,7 +77,7 @@ while ($row = $result->fetch_object()){
     $wk_array['option_list'][] = array('id' => $row->id, 'value' => $row->name ." (#".$row->id.")", 'selected' => $sel);
 }
 
-$sql = "SELECT distinct ak FROM starterliste WHERE evtid=".$event;
+$sql = "SELECT distinct ak FROM starterliste WHERE compid=".$wk;
 $requests[] = $sql;
 $statement = $db->prepare($sql);
 $statement->execute();
@@ -111,7 +110,7 @@ $sql = "SELECT @i:=@i+1 as rank, s.startnum, s.name, s.verein, s.ak, z.zeit FROM
 */
 
 $sql = "SELECT s.startnum, s.name, s.verein, s.ak, z.id, z.zeit FROM starterliste s, zeiten z "
-      ."WHERE s.startnum=z.startnum AND z.compid=".$wk." AND s.evtid=".$event;
+      ."WHERE s.startnum=z.startnum AND z.compid=".$wk." AND s.compid=".$wk;
 if ($ak != "")
 {
     $sql .= " AND s.ak='".$ak."'";
