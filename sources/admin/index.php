@@ -98,7 +98,11 @@ else if ($action == "start_list")
                              * 10 -> Nation*
                              * *) -> not used
                              */
-                            $sql .= "('".$arr[0].", ".$arr[1]."', '".$arr[2]."', '".$arr[5]."', ".$arr[4].", ".$comp_id.")";
+                            $sql .= "('".$db->escape_string($arr[0]).", "
+                                        .$db->escape_string($arr[1])."', '"
+                                        .$db->escape_string($arr[2])."', '"
+                                        .$db->escape_string($arr[5])."', "
+                                        .$arr[4].", ".$comp_id.")";
                         }
                     }
                 }
@@ -115,14 +119,14 @@ else if ($action == "start_list")
             }
             else
             {
-                $note = "<span class='text-success'>Kann Datei nicht öffnen!</span>";
+                $note = "<span class='text-danger'>Kann Datei nicht öffnen!</span>";
             }
 
             unlink($_FILES['start_list_file']['tmp_name']);
         }
         else
         {
-            $note = "<span class='text-success'>Upload Error!</span>";
+            $note = "<span class='text-danger'>Upload Error!</span>";
         }
     }
 }
